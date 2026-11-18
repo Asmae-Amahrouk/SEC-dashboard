@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+  <title>Example Atom</title>
+  <entry>
+    <title type="html">Europol dismantles LockBit infrastructure, arrests suspects in Poland and Ukraine</title>
+    <link rel="alternate" type="text/html" href="https://example.org/2026/11/lockbit"/>
+    <id>tag:example.org,2026:1</id>
+    <updated>2026-11-15T08:30:00Z</updated>
+    <summary>Law enforcement seized servers used by the ransomware gang.</summary>
+  </entry>
+</feed>

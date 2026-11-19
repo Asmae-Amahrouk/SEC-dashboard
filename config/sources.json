@@ -1,5 +1,5 @@
 {
-  "_comment": "News sources. category is the default bucket (cyber | ai | tech); each article is re-classified by its content. Set enabled to false to pause a feed.",
+  "_comment": "News sources. category is the default bucket (cyber | ai | tech); each article is re-classified by its content. tags: [\"drp\"] marks every story from the feed as resilience / disaster-recovery news. Set enabled to false to pause a feed.",
   "sources": [
     { "id": "bleepingcomputer", "name": "BleepingComputer", "category": "cyber", "url": "https://www.bleepingcomputer.com/feed/", "site": "https://www.bleepingcomputer.com" },
     { "id": "thehackernews", "name": "The Hacker News", "category": "cyber", "url": "https://feeds.feedburner.com/TheHackersNews", "site": "https://thehackernews.com" },
@@ -22,6 +22,10 @@
     { "id": "ai-news", "name": "AI News", "category": "ai", "url": "https://www.artificialintelligence-news.com/feed/", "site": "https://www.artificialintelligence-news.com" },
     { "id": "huggingface", "name": "Hugging Face Blog", "category": "ai", "url": "https://huggingface.co/blog/feed.xml", "site": "https://huggingface.co/blog" },
     { "id": "google-ai", "name": "Google AI Blog", "category": "ai", "url": "https://blog.google/technology/ai/rss/", "site": "https://blog.google/technology/ai/" },
+
+    { "id": "drj", "name": "Disaster Recovery Journal", "category": "tech", "tags": ["drp"], "url": "https://drj.com/feed/", "site": "https://drj.com" },
+    { "id": "continuity-central", "name": "Continuity Central", "category": "tech", "tags": ["drp"], "url": "https://www.continuitycentral.com/index.php/news?format=feed&type=rss", "site": "https://www.continuitycentral.com" },
+    { "id": "dck", "name": "Data Center Knowledge", "category": "tech", "tags": ["drp"], "url": "https://www.datacenterknowledge.com/rss.xml", "site": "https://www.datacenterknowledge.com" },
 
     { "id": "arstechnica", "name": "Ars Technica", "category": "tech", "url": "https://feeds.arstechnica.com/arstechnica/index", "site": "https://arstechnica.com" },
     { "id": "theregister", "name": "The Register", "category": "tech", "url": "https://www.theregister.com/headlines.atom", "site": "https://www.theregister.com" },

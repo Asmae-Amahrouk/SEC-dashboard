@@ -4,7 +4,7 @@
 
   // ---------- Static vocab (mirrors scraper/classify.py) ----------
   const CATS = ["cyber", "ai", "tech"];
-  const CAT_LABEL = { cyber: "Cybersecurity", ai: "AI", tech: "IT / Tech" };
+  const CAT_LABEL = { cyber: "Cybersecurity", ai: "AI", tech: "IT / Tech", drp: "Resilience / DRP" };
   const SEVS = ["critical", "high", "medium", "low", "info"];
   const SEV_RANK = { critical: 4, high: 3, medium: 2, low: 1, info: 0 };
   const SEV_LABEL = { critical: "Critical", high: "High", medium: "Medium", low: "Low", info: "Informational" };
@@ -19,7 +19,8 @@
     llm: ["ai", "LLMs & generative AI"], aisecurity: ["ai", "AI security & safety"], agents: ["ai", "AI agents"],
     aipolicy: ["ai", "AI policy & regulation"], aibusiness: ["ai", "AI business & funding"],
     airesearch: ["ai", "Models & research"], compute: ["ai", "Chips & compute"],
-    outage: ["tech", "Outages & incidents"], cloud: ["tech", "Cloud & infrastructure"], platforms: ["tech", "OS & platforms"],
+    outage: ["drp", "Outages & downtime"], backup: ["drp", "Backup & data protection"],
+    recovery: ["drp", "Disaster recovery & IR"], continuity: ["drp", "Business continuity & resilience"], cloud: ["tech", "Cloud & infrastructure"], platforms: ["tech", "OS & platforms"],
     bigtech: ["tech", "Big Tech"], regulation: ["tech", "Tech policy & antitrust"],
   };
   const STOPWORDS = new Set(("a about above after again against all also am an and any are as at be because been before being below " +
@@ -29,11 +30,15 @@
     "very was we were what when where which while who whom why will with you your new says said say how why what update updates " +
     "week weekly report reports could would use used using via vs get gets got make makes made one two three first last year years " +
     "day days time just like now news may might can't won't it's here's what's still back amid across top best big more less " +
-    "company companies firm firms people users user million billion data security cyber attack attacks hackers hacker").split(/\s+/));
+    "company companies firm firms people users user million billion data security cyber attack attacks hackers hacker " +
+    "jan feb mar apr jun jul aug sep sept oct nov dec january february march april june july august september october " +
+    "november december monday tuesday wednesday thursday friday saturday sunday another warns warn warning ceo flaw flaws " +
+    "says new latest recap critical code access attackers").split(/\s+/));
 
   const PAGE_SIZE = 25;
   const $ = (sel) => document.querySelector(sel);
-  const state = { range: 1, cat: "all", sev: "", country: null, topic: null, source: null, q: "", metric: "mentions", shown: PAGE_SIZE };
+  const state = { range: 1, cat: "all", sev: "", country: null, topic: null, source: null, day: null, q: "", metric: "mentions", shown: PAGE_SIZE };
+  let drawerFocus = null; // which click opened the drawer: {type, key}
   let DATA = null, ARTICLES = [], ANCHOR = Date.now(), WORLD = null, NAMES = {}, timelineChart = null;
 
   // ---------- Helpers ----------
@@ -83,7 +88,8 @@
   function matches(a, { from, to, skip = [] }) {
     const t = Date.parse(a.published);
     if (t < from || t > to) return false;
-    if (!skip.includes("cat") && state.cat !== "all" && a.category !== state.cat) return false;
+    if (!skip.includes("cat") && state.cat !== "all" && (state.cat === "drp" ? !a.drp : a.category !== state.cat)) return false;
+    if (!skip.includes("day") && state.day && (t < state.day.from || t >= state.day.to)) return false;
     if (!skip.includes("sev") && state.sev && SEV_RANK[a.severity] < SEV_RANK[state.sev]) return false;
     if (!skip.includes("country") && state.country && !a.countries.includes(state.country)) return false;
     if (!skip.includes("topic") && state.topic && !a.topics.includes(state.topic)) return false;
@@ -123,8 +129,11 @@
     renderSources(list);
     renderTopicList("#threats", "cyber");
     renderTopicList("#ai-topics", "ai");
+    renderTopicList("#drp-topics", "drp");
     renderClouds(list);
     renderStories(list);
+    renderDrawer(list);
+    writeHash();
   }
 
   function renderChips() {
@@ -134,7 +143,24 @@
       el("button", { type: "button", "aria-label": `Remove filter ${label}`, onclick: () => { clear(); state.shown = PAGE_SIZE; render(); }, text: "×" })));
     if (state.country) add(`📍 ${countryName(state.country)}`, () => (state.country = null));
     if (state.topic) add(`# ${TOPICS[state.topic]?.[1] || state.topic}`, () => (state.topic = null));
-    if (state.source) add(`📰 ${DATA.sources.find((s) => s.id === state.source)?.name || state.source}`, () => (state.source = null));
+    if (state.source) add(`📰 ${sourceName(state.source)}`, () => (state.source = null));
+    if (state.day) add(`🕒 ${dayLabel(state.day)}`, () => (state.day = null));
+    if (state.country || state.topic || state.source || state.day || state.q || state.sev || state.cat !== "all") {
+      box.append(el("button", { type: "button", class: "chip", onclick: clearAll, text: "Clear all" }));
+    }
+  }
+  const sourceName = (id) => DATA.sources.find((s) => s.id === id)?.name || id;
+  function dayLabel(d) {
+    const from = new Date(d.from);
+    return d.to - d.from <= 36e5
+      ? `${from.toLocaleDateString([], { month: "short", day: "numeric" })}, ${from.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}`
+      : from.toLocaleDateString([], { weekday: "short", month: "short", day: "numeric" });
+  }
+  function clearAll() {
+    Object.assign(state, { cat: "all", sev: "", country: null, topic: null, source: null, day: null, q: "", shown: PAGE_SIZE });
+    closeDrawer();
+    syncControls();
+    render();
   }
 
   function renderBriefing(list) {
@@ -252,7 +278,18 @@
     tip.style.top = `${y}px`;
   }
   const hideTip = () => ($("#tooltip").hidden = true);
-  const toggleCountry = (code) => { state.country = state.country === code ? null : code; state.shown = PAGE_SIZE; render(); };
+  const toggleCountry = (code) => focus("country", code);
+
+  // Set (or clear, when clicked again) one drill-down filter, then show its stories in the drawer.
+  function focus(type, key) {
+    const same = state[type] != null && JSON.stringify(state[type]) === JSON.stringify(key);
+    state[type] = same ? null : key;
+    state.shown = PAGE_SIZE;
+    drawerFocus = same ? null : { type, key };
+    if (same) closeDrawer(false);
+    render();
+    if (!same) openDrawer();
+  }
 
   // ---------- Bar lists ----------
   function barList(target, rows, { onClick, isActive, colorOf, empty = "Nothing yet" }) {
@@ -292,7 +329,7 @@
         : { key: t, label: TOPICS[t][1], total, parts: byCategory(sub) };
     });
     barList(target, rows, {
-      onClick: (k) => { state.topic = state.topic === k ? null : k; state.shown = PAGE_SIZE; render(); },
+      onClick: (k) => focus("topic", k),
       isActive: (k) => k === state.topic,
       colorOf: (k) => (SEVS.includes(k) ? cssVar(`--sev-${k}`) : catColor(k)),
     });
@@ -304,7 +341,7 @@
       return { key: id, label: src?.name || id, total, parts: byCategory(list.filter((a) => a.source_id === id)) };
     });
     barList("#sources-top", rows, {
-      onClick: (k) => { state.source = state.source === k ? null : k; state.shown = PAGE_SIZE; render(); },
+      onClick: (k) => focus("source", k),
       isActive: (k) => k === state.source, colorOf: catColor,
     });
   }
@@ -315,13 +352,27 @@
     const total = list.length || 1;
     const bar = $("#severity-bar");
     bar.replaceChildren(...counts.filter(([, n]) => n).map(([s, n]) =>
-      el("span", { style: `flex:${n / total};background:var(--sev-${s})`, title: `${SEV_LABEL[s]}: ${n}` })));
+      el("span", {
+        style: `flex:${n / total};background:var(--sev-${s})`, title: `${SEV_LABEL[s]}: ${n}. Click to see these stories`,
+        class: state.sev && state.sev !== s ? "dim" : null, onclick: () => focusSeverity(s),
+      })));
     if (!list.length) bar.append(el("span", { style: "flex:1;background:var(--grid)" }));
     const leg = $("#severity-legend");
     leg.replaceChildren(...counts.map(([s, n]) => el("li", {
-      title: s === "low" ? "" : `Show ${SEV_LABEL[s].toLowerCase()} and above`,
-      onclick: () => { if (s === "low") return; state.sev = state.sev === s ? "" : s; $("#severity").value = state.sev; state.shown = PAGE_SIZE; render(); },
+      title: `Show ${SEV_LABEL[s].toLowerCase()} and above`,
+      onclick: () => focusSeverity(s),
     }, sevIcon(s), el("span", { class: "n", text: `${fmt(n)} · ${Math.round((n / total) * 100)}%` }))));
+  }
+
+  function focusSeverity(s) {
+    const same = state.sev === s;
+    state.sev = same ? "" : s;
+    $("#severity").value = ["critical", "high", "medium"].includes(state.sev) ? state.sev : "";
+    drawerFocus = same ? null : { type: "sev", key: s };
+    state.shown = PAGE_SIZE;
+    if (same) closeDrawer(false);
+    render();
+    if (!same) openDrawer();
   }
 
   // ---------- Timeline ----------
@@ -332,23 +383,27 @@
     const end = hourly ? Math.ceil(ANCHOR / 36e5) * 36e5 : (() => { const d = new Date(ANCHOR); d.setHours(24, 0, 0, 0); return d.getTime(); })();
     const start = end - n * bucketMs;
     const labels = [], buckets = CATS.map(() => new Array(n).fill(0));
+    const bounds = [];
     for (let i = 0; i < n; i++) {
       const d = new Date(start + i * bucketMs);
+      bounds.push({ from: start + i * bucketMs, to: start + (i + 1) * bucketMs });
       labels.push(hourly ? d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) : d.toLocaleDateString([], { month: "short", day: "numeric" }));
     }
-    for (const a of list) {
+    const tlList = select({ skip: ["day"] });
+    for (const a of tlList) {
       const i = Math.floor((Date.parse(a.published) - start) / bucketMs);
       if (i >= 0 && i < n) buckets[CATS.indexOf(a.category)][i]++;
     }
-    const cats = state.cat === "all" ? CATS : [state.cat];
-    $("#timeline-caption").textContent = `${hourly ? "Stories per hour" : "Stories per day"} · last ${rangeLabel()}`;
+    const cats = state.cat === "all" || state.cat === "drp" ? CATS : [state.cat];
+    $("#timeline-caption").textContent = `${hourly ? "Stories per hour" : "Stories per day"} · last ${rangeLabel()} · click a bar to see its stories`;
     $("#timeline-legend").replaceChildren(...cats.map((c) => el("span", {}, el("i", { class: `dot ${c}` }), CAT_LABEL[c])));
 
     const surface = cssVar("--surface");
     const datasets = cats.map((c) => {
       const idx = CATS.indexOf(c);
       return {
-        label: CAT_LABEL[c], data: buckets[idx], backgroundColor: catColor(c), borderColor: surface,
+        label: CAT_LABEL[c], data: buckets[idx], borderColor: surface,
+        backgroundColor: (ctx) => (state.day && bounds[ctx.dataIndex]?.from !== state.day.from ? `${catColor(c)}55` : catColor(c)),
         borderWidth: { top: 2, bottom: 0, left: 0, right: 0 }, borderSkipped: false, maxBarThickness: 28,
         borderRadius: (ctx) => {
           const later = cats.slice(cats.indexOf(c) + 1).some((o) => buckets[CATS.indexOf(o)][ctx.dataIndex] > 0);
@@ -360,6 +415,9 @@
     const options = {
       responsive: true, maintainAspectRatio: false, animation: { duration: 250 },
       interaction: { mode: "index", intersect: false },
+      onHover: (evt, els) => { evt.native.target.style.cursor = els.length ? "pointer" : "default"; },
+      // Defer: focusing re-renders and destroys this chart, which must not happen inside its own event handler.
+      onClick: (evt, els) => { if (els.length) { const slot = bounds[els[0].index]; setTimeout(() => focus("day", slot)); } },
       plugins: {
         legend: { display: false },
         tooltip: {
@@ -428,7 +486,7 @@
 
     const tags = el("div", { class: "tags" });
     for (const t of a.topics.slice(0, 4)) {
-      if (TOPICS[t]) tags.append(el("span", { onclick: () => { state.topic = t; state.shown = PAGE_SIZE; render(); }, text: TOPICS[t][1] }));
+      if (TOPICS[t]) tags.append(el("span", { onclick: () => focus("topic", t), text: TOPICS[t][1] }));
     }
     for (const c of a.countries.slice(0, 3)) tags.append(el("span", { onclick: () => toggleCountry(c), text: `📍 ${countryName(c)}` }));
     for (const cve of (a.cves || []).slice(0, 2)) tags.append(el("span", { onclick: () => setSearch(cve), text: cve }));
@@ -474,8 +532,102 @@
     });
   }
 
+  // ---------- Drawer ----------
+  function openDrawer() {
+    const d = $("#drawer");
+    d.classList.add("open");
+    d.setAttribute("aria-hidden", "false");
+    $("#drawer-backdrop").hidden = false;
+    renderDrawer(select());
+    d.focus({ preventScroll: true });
+  }
+  function closeDrawer(rerender = false) {
+    const d = $("#drawer");
+    if (!d.classList.contains("open")) return;
+    d.classList.remove("open");
+    d.setAttribute("aria-hidden", "true");
+    $("#drawer-backdrop").hidden = true;
+    drawerFocus = null;
+    if (rerender) render();
+  }
+
+  function renderDrawer(list) {
+    if (!$("#drawer").classList.contains("open") || !drawerFocus) return;
+    const { type, key } = drawerFocus;
+    if (state[type === "sev" ? "sev" : type] == null || state[type === "sev" ? "sev" : type] === "") { closeDrawer(); return; }
+    const kickers = { country: "Country", topic: "Topic", source: "Source", day: "Time slot", sev: "Severity" };
+    const titles = {
+      country: () => `📍 ${countryName(key)}`, topic: () => TOPICS[key]?.[1] || key, source: () => sourceName(key),
+      day: () => dayLabel(key), sev: () => `${SEV_LABEL[key]}${key === "critical" ? "" : " and above"}`,
+    };
+    $("#drawer-kicker").textContent = `${kickers[type]} · ${state.day && type !== "day" ? dayLabel(state.day) : `last ${rangeLabel()}`}`
+      + (state.cat !== "all" ? ` · ${CAT_LABEL[state.cat]}` : "");
+    $("#drawer-title").textContent = titles[type]();
+
+    const body = $("#drawer-body");
+    const crit = list.filter((a) => SEV_RANK[a.severity] >= 3).length;
+    const facts = el("div", { class: "facts" },
+      el("div", { class: "fact" }, el("b", { text: fmt(list.length) }), el("span", { text: "stories" })),
+      el("div", { class: "fact" }, el("b", { text: fmt(crit) }), el("span", { text: "critical + high" })),
+      el("div", { class: "fact" }, el("b", { text: fmt(new Set(list.map((a) => a.source_id)).size) }), el("span", { text: "sources" })));
+    const section = (title, items, onPick) => items.length ? el("div", {},
+      el("h3", { class: "mini-title", text: title }),
+      el("div", { class: "cloud" }, items.map(([k, n, label]) => el("button", { type: "button", class: "tag", onclick: () => onPick(k) }, label || k, el("span", { class: "n", text: n }))))) : null;
+    const topics = countBy(list, "topics").filter(([t]) => t !== key && TOPICS[t]).slice(0, 8).map(([t, n]) => [t, n, TOPICS[t][1]]);
+    const countries = type === "country" ? [] : countBy(list, "countries").slice(0, 8).map(([c, n]) => [c, n, countryName(c)]);
+    const sources = type === "source" ? [] : countBy(list, "source_id").slice(0, 6).map(([id, n]) => [id, n, sourceName(id)]);
+    const stories = [...list].sort((x, y) => (y.score || 0) - (x.score || 0) || Date.parse(y.published) - Date.parse(x.published));
+    body.replaceChildren(...[facts,
+      section("Main themes", topics, (t) => { drawerFocus = { type: "topic", key: t }; state.topic = t; render(); }),
+      section("Threat actors", countBy(list, "actors").slice(0, 8), setSearch),
+      section("Countries", countries, (c) => { drawerFocus = { type: "country", key: c }; state.country = c; render(); }),
+      section("Sources", sources, (id) => { drawerFocus = { type: "source", key: id }; state.source = id; render(); }),
+      el("div", {}, el("h3", { class: "mini-title", text: `Stories (${fmt(list.length)}), most severe first` }),
+        el("ol", { class: "stories" }, stories.length ? stories.slice(0, 60).map(storyItem) : [el("li", { class: "empty-state", text: "No stories" })]),
+        list.length > 60 ? el("p", { class: "muted small", text: `Showing 60 of ${fmt(list.length)}. Use the main feed for the rest.` }) : null)]
+      .filter(Boolean));
+  }
+
+  // ---------- Shareable URL (#range=7&country=276…) ----------
+  function writeHash() {
+    const p = new URLSearchParams();
+    if (state.range !== 1) p.set("range", state.range);
+    if (state.cat !== "all") p.set("cat", state.cat);
+    if (state.sev) p.set("sev", state.sev);
+    if (state.country) p.set("country", state.country);
+    if (state.topic) p.set("topic", state.topic);
+    if (state.source) p.set("source", state.source);
+    if (state.day) p.set("slot", `${state.day.from}-${state.day.to}`);
+    if (state.q) p.set("q", state.q);
+    if (state.metric !== "mentions") p.set("map", state.metric);
+    const hash = p.toString();
+    if (hash !== location.hash.slice(1)) history.replaceState(null, "", hash ? `#${hash}` : location.pathname + location.search);
+  }
+  function readHash() {
+    const p = new URLSearchParams(location.hash.slice(1));
+    const range = Number(p.get("range"));
+    state.range = [1, 7, 30].includes(range) ? range : 1;
+    state.cat = ["cyber", "ai", "tech", "drp"].includes(p.get("cat")) ? p.get("cat") : "all";
+    state.sev = SEVS.includes(p.get("sev")) ? p.get("sev") : "";
+    state.country = /^\d{3}$/.test(p.get("country") || "") ? p.get("country") : null;
+    state.topic = TOPICS[p.get("topic")] ? p.get("topic") : null;
+    state.source = p.get("source") || null;
+    const slot = (p.get("slot") || "").match(/^(\d+)-(\d+)$/);
+    state.day = slot ? { from: Number(slot[1]), to: Number(slot[2]) } : null;
+    state.q = (p.get("q") || "").toLowerCase().slice(0, 100);
+    state.metric = p.get("map") === "heat" ? "heat" : "mentions";
+  }
+  function syncControls() {
+    const mark = (id, attr, val) => $(id).querySelectorAll("button").forEach((b) => b.classList.toggle("active", b.dataset[attr] === String(val)));
+    mark("#range", "range", state.range);
+    mark("#category", "cat", state.cat);
+    mark("#map-metric", "metric", state.metric);
+    $("#severity").value = ["critical", "high", "medium"].includes(state.sev) ? state.sev : "";
+    $("#search").value = state.q;
+  }
+
   function wire() {
-    bindSeg("#range", "range", (v) => (state.range = Number(v)));
+    bindSeg("#range", "range", (v) => { state.range = Number(v); state.day = null; });
     bindSeg("#category", "cat", (v) => (state.cat = v));
     bindSeg("#map-metric", "metric", (v) => (state.metric = v));
     $("#severity").addEventListener("change", (e) => { state.sev = e.target.value; state.shown = PAGE_SIZE; render(); });
@@ -492,6 +644,15 @@
       try { localStorage.setItem("sec-theme", next); } catch (e) { /* storage unavailable */ }
       render();
     });
+    $("#drawer-close").addEventListener("click", () => closeDrawer());
+    $("#drawer-backdrop").addEventListener("click", () => closeDrawer());
+    document.addEventListener("keydown", (e) => { if (e.key === "Escape") closeDrawer(); });
+    addEventListener("hashchange", () => {
+      if (!DATA) return;
+      readHash();
+      syncControls();
+      render();
+    });
     let rt;
     new ResizeObserver(() => { clearTimeout(rt); rt = setTimeout(renderMap, 120); }).observe($("#map"));
   }
@@ -502,6 +663,8 @@
   }
 
   async function init() {
+    readHash();
+    syncControls();
     wire();
     try {
       const [news, topo] = await Promise.all([

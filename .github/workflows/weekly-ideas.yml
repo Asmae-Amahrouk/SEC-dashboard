@@ -1,0 +1,85 @@
+name: Weekly blog ideas
+
+# Delivery: if the SMTP secrets are set, a formatted email is sent through your mail provider.
+# Otherwise (no secrets needed) the ideas are posted as a GitHub issue that mentions you,
+# and GitHub emails it to the address on your GitHub account.
+
+on:
+  schedule:
+    - cron: "41 6 * * 1"   # Mondays 06:41 UTC
+  workflow_dispatch:
+    inputs:
+      resend:
+        description: "Regenerate this week's ideas and send them again"
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+  issues: write
+
+concurrency:
+  group: update-news       # never run at the same time as the news refresh
+  cancel-in-progress: false
+
+jobs:
+  ideas:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      SMTP_HOST: ${{ secrets.SMTP_HOST }}
+      SMTP_PORT: ${{ secrets.SMTP_PORT }}
+      SMTP_USERNAME: ${{ secrets.SMTP_USERNAME }}
+      SMTP_PASSWORD: ${{ secrets.SMTP_PASSWORD }}
+      EMAIL_TO: ${{ secrets.EMAIL_TO }}
+      EMAIL_FROM: ${{ secrets.EMAIL_FROM }}
+      DASHBOARD_URL: https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/
+      MENTION: ${{ github.repository_owner }}
+      FORCE: ${{ inputs.resend && '--force' || '' }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Refresh news first
+        run: python scraper/fetch_news.py || echo "Refresh failed, using existing data"
+
+      - name: Build ideas (and email them if SMTP is configured)
+        run: |
+          if [ -n "$SMTP_HOST" ]; then EMAIL=--email; fi
+          python scraper/weekly_ideas.py $EMAIL $FORCE --markdown "$RUNNER_TEMP/ideas.md"
+
+      - name: Post ideas as a GitHub issue (no SMTP needed)
+        if: env.SMTP_HOST == ''
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          TITLE="$(cat "$RUNNER_TEMP/ideas.md.title")"
+          gh label create weekly-ideas --color 6250d6 --description "Weekly blog ideas digest" --force
+          if [ -z "$FORCE" ] && gh issue list --label weekly-ideas --state all --limit 50 --json title --jq '.[].title' | grep -Fxq "$TITLE"; then
+            echo "This week's issue already exists. Nothing to send."
+            exit 0
+          fi
+          for n in $(gh issue list --label weekly-ideas --state open --json number --jq '.[].number'); do
+            gh issue close "$n" --comment "Superseded by this week's ideas."
+          done
+          gh issue create --title "$TITLE" --body-file "$RUNNER_TEMP/ideas.md" --label weekly-ideas
+
+      - name: Commit ideas
+        if: always()
+        run: |
+          git config user.name "news-bot"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add docs/data
+          if git diff --cached --quiet; then
+            echo "No changes"
+          else
+            git commit -m "data: weekly blog ideas $(date -u +'%Y-W%V')"
+            git pull --rebase --autostash
+            git push
+          fi

@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>SEC Pulse Ideas</title>
+  <meta name="description" content="Weekly blog ideas on cybersecurity, AI and disaster-recovery planning, based on the week's news.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath d='M16 2 4 7v8c0 7.5 5.1 13.4 12 15 6.9-1.6 12-7.5 12-15V7z' fill='%232a78d6'/%3E%3Cpath d='M10 17h3l2-5 3 9 2-4h2' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/ideas.css">
+  <script>
+    try { const t = localStorage.getItem("sec-theme"); if (t) document.documentElement.dataset.theme = t; } catch (e) {}
+  </script>
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <svg viewBox="0 0 32 32" aria-hidden="true"><path d="M16 2 4 7v8c0 7.5 5.1 13.4 12 15 6.9-1.6 12-7.5 12-15V7z" fill="var(--series-cyber)"/><path d="M10 17h3l2-5 3 9 2-4h2" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <div>
+        <h1>SEC Pulse</h1>
+        <p class="sub">Weekly blog ideas: Cybersecurity · AI · DRP</p>
+      </div>
+    </div>
+    <nav class="pages" aria-label="Pages">
+      <a href="./">Dashboard</a>
+      <a href="ideas.html" class="active" aria-current="page">Blog ideas</a>
+    </nav>
+    <div class="topbar-right">
+      <button id="theme-toggle" class="icon-btn" type="button" aria-label="Toggle dark mode" title="Toggle dark mode">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3a9 9 0 1 0 9 9 7 7 0 0 1-9-9z" fill="currentColor"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <nav class="filters" aria-label="Filters">
+    <label class="select">
+      <span class="visually-hidden">Week</span>
+      <select id="week"></select>
+    </label>
+    <div class="seg" role="group" aria-label="Area" id="area">
+      <button type="button" data-area="all" class="active">All areas</button>
+      <button type="button" data-area="drp"><i class="dot drp"></i>DRP &amp; resilience</button>
+      <button type="button" data-area="cyber"><i class="dot cyber"></i>Cybersecurity</button>
+      <button type="button" data-area="ai"><i class="dot ai"></i>AI</button>
+    </div>
+  </nav>
+
+  <main id="ideas-app">
+    <section class="card week-head" id="week-head" aria-live="polite"></section>
+    <section id="ideas" class="ideas"></section>
+    <section class="card">
+      <div class="card-head"><h2>Top stories of the week</h2></div>
+      <ol id="top-stories" class="plain-list"></ol>
+    </section>
+  </main>
+
+  <footer class="footer muted small">
+    Ideas come from keyword rules applied to public headlines (no AI). They are starting points: read the sources before you write.
+    New ideas every Monday. The same ideas arrive by email if you set it up (see the README).
+  </footer>
+
+  <script src="js/ideas.js"></script>
+</body>
+</html>

@@ -1,6 +1,6 @@
 # SEC Pulse: cybersecurity, AI and tech news dashboard
 
-A dashboard you can open each morning to see what's happening in **cybersecurity**, **artificial intelligence** and **IT/tech**. It collects headlines from 24 well-known sources (BleepingComputer, The Hacker News, Krebs, Dark Reading, SecurityWeek, The Record, CISA, MIT Technology Review, The Verge, TechCrunch, Ars Technica and others) and turns them into statistics, a world map and a filterable feed.
+A dashboard you can open each morning to see what's happening in **cybersecurity**, **artificial intelligence** and **IT/tech**. It collects headlines from 27 well-known sources (BleepingComputer, The Hacker News, Krebs, Dark Reading, SecurityWeek, The Record, CISA, MIT Technology Review, The Verge, TechCrunch, Ars Technica, Disaster Recovery Journal and others) and turns them into statistics, a world map and a filterable feed.
 
 ## What you get
 
@@ -13,7 +13,11 @@ A dashboard you can open each morning to see what's happening in **cybersecurity
 - **Threat landscape**: ransomware, breaches, vulnerabilities, zero-days, malware, phishing, APTs, DDoS, supply chain and more.
 - **AI radar**: LLMs, AI security & safety, agents, policy, funding, research, chips.
 - **Trending terms, threat actors, most-cited CVEs**: click any of them to search.
+- **Resilience & DRP**: outages, backup, disaster recovery and business continuity, across all categories (the **DRP** filter button).
 - **Must-read and latest stories**, with severity, category, source, places and topics on each story.
+- **Click anything to drill down**: map countries, hotspots, timeline bars, severity segments, topics and sources. A side panel opens with the summary and matching stories, and the whole dashboard filters to match. Click the same item again (or **Clear all**) to reset.
+- **Shareable links**: the page address keeps your filters (`…/#range=7&country=840&topic=ransomware`), so you can bookmark or share a view.
+- **Weekly blog ideas** (the **Blog ideas** page plus an optional Monday email): see below.
 - **Source health**: which feeds worked on the last run.
 - Light/dark mode, phone-friendly layout, no tracking, no backend.
 
@@ -24,7 +28,8 @@ config/sources.json      list of RSS/Atom feeds (add/remove sources here)
 scraper/fetch_news.py    fetches feeds in parallel, dedupes, writes docs/data/*.json
 scraper/classify.py      keyword rules: category, topics, severity, CVEs, actors
 scraper/countries.py     country gazetteer + threat-actor attribution
-scraper/serve.py         Docker entrypoint: web server + refresh timer
+scraper/weekly_ideas.py  weekly blog ideas + email (rule-based)
+scraper/serve.py         Docker entrypoint: web server + refresh timer + weekly ideas
 Dockerfile, docker-compose.yml
 docs/                    the static dashboard (GitHub Pages serves this folder)
 .github/workflows/       GitHub Action that refreshes the data every 3 hours
@@ -38,6 +43,48 @@ The scraper uses only the Python standard library (plus optional `defusedxml` fo
 - *Countries*: country names, demonyms, capitals and key agencies (FBI, CISA, GCHQ…) are matched. Named threat actors add their attributed country (for example Volt Typhoon adds China).
 
 Expect some mislabels. Tune the rules in `scraper/classify.py` and `scraper/countries.py`.
+
+## Weekly blog ideas (Cybersecurity · AI · DRP)
+
+Every Monday, `scraper/weekly_ideas.py` looks at the last 7 days of news. It finds the themes that are rising compared with the 3 weeks before (it compares each theme's *share* of the news, which stays fair when the number of stories changes) and turns the strongest into **about 6 blog ideas**, balanced across **DRP & resilience**, **Cybersecurity** and **AI**. Each idea has:
+
+- a clear **title**, **why now** (the numbers and the week's biggest story), **your angle**, a **suggested outline**, **sources to read first** and **who it's for**
+- a **Copy as Markdown** button on the Blog ideas page, to start a draft quickly
+
+It's all rule-based: no AI and no API keys. The idea templates live in `TEMPLATES` and `COMBOS` in `scraper/weekly_ideas.py`, so edit them to match your voice. Past weeks (up to 12) stay available in the week picker.
+
+### Get the ideas by email
+
+The **Weekly blog ideas** workflow runs on Mondays at 06:41 UTC. It refreshes the news, builds the ideas and commits them to `docs/data/ideas.json`. Then it delivers them once per week, in four clearly numbered sections: *This week in one minute*, *Your blog ideas at a glance*, *The ideas in detail* and *Top stories of the week*. There are two ways to receive them:
+
+**Option A: GitHub notification email (default, no passwords).**
+If no SMTP secrets are set, the workflow posts the digest as a GitHub issue labeled `weekly-ideas` that @mentions you. GitHub then emails it to the address on your GitHub account. Last week's issue is closed automatically.
+- Check that GitHub emails you about mentions: <https://github.com/settings/notifications> → *Participating, @mentions and custom* → **Email** ticked.
+- Test it: **Actions → Weekly blog ideas → Run workflow**.
+
+**Option B: a formatted email through an email service (SMTP).**
+Gmail only allows this with an *app password*, which some accounts can't create. A free email-sending service works instead, for example [Brevo](https://www.brevo.com) (free plan: 300 emails per day):
+1. Create a free Brevo account with your email address and confirm it.
+2. In Brevo, open **SMTP & API → SMTP** and click **Generate a new SMTP key**. Copy the *login* and the *key*.
+3. Under **Senders**, make sure your own address is a verified sender.
+4. In the repo: **Settings → Secrets and variables → Actions → New repository secret**. Add:
+
+   | Secret | Value |
+   |---|---|
+   | `SMTP_HOST` | `smtp-relay.brevo.com` (Gmail with an app password: `smtp.gmail.com`) |
+   | `SMTP_PORT` | `587` |
+   | `SMTP_USERNAME` | the SMTP *login* Brevo shows (Gmail: your address) |
+   | `SMTP_PASSWORD` | the SMTP *key* (Gmail: the app password) |
+   | `EMAIL_TO` | where to send it (comma-separate several addresses) |
+   | `EMAIL_FROM` | your verified sender address |
+
+5. Run the workflow once to test it. Tick **resend** to send again in the same week.
+
+As soon as `SMTP_HOST` is set, the workflow uses Option B instead of the GitHub issue. Secrets are encrypted by GitHub and never written into the code, so they stay private even though the repo is public.
+
+**Docker:** copy `.env.example` to `.env`, fill in the same values, and run `docker compose up -d`. The container builds the ideas once per week (on the first refresh of each ISO week) and emails them if `SMTP_HOST` is set. Set `WEEKLY_IDEAS=0` to turn it off.
+
+Preview the email locally without sending it: `python scraper/weekly_ideas.py --preview email.html`.
 
 ## Set it up (about 5 minutes)
 
@@ -73,6 +120,8 @@ Settings (environment variables):
 | `WINDOW_DAYS` | `30` | Days of stories to keep |
 | `FETCH_ON_START` | `1` | Set to `0` to skip the fetch at startup |
 | `ACCESS_LOG` | `0` | Set to `1` to log every HTTP request |
+| `WEEKLY_IDEAS` | `1` | Set to `0` to turn off weekly blog ideas |
+| `SMTP_*`, `EMAIL_TO` | (unset) | Weekly email settings, see `.env.example` |
 
 The container runs as a non-root user and exposes `/healthz` for health checks. It turns off directory listings and sends security headers, including a strict Content-Security-Policy. To use your own feed list, mount it: `-v ./config/sources.json:/app/config/sources.json:ro`.
 
@@ -103,11 +152,12 @@ Add an entry to `config/sources.json`:
 { "id": "my-feed", "name": "My Feed", "category": "cyber", "url": "https://example.com/feed.xml", "site": "https://example.com" }
 ```
 
-`category` is the feed's default bucket (`cyber`, `ai` or `tech`). Set `"enabled": false` to pause a feed.
+`category` is the feed's default bucket (`cyber`, `ai` or `tech`). Add `"tags": ["drp"]` to mark every story from a feed as resilience / DRP news. Set `"enabled": false` to pause a feed.
 
 ## Ideas for later
 
-- Email or Telegram digest of the day's critical stories
+- Daily email or Telegram digest of critical stories
+- Optional AI-written blog ideas (Claude API) on top of the rule-based ones
 - CISA KEV and NVD feeds for CVSS scores
 - Optional LLM summaries and better country/actor extraction
 - Watchlists for your own vendors and technologies

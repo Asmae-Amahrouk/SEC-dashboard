@@ -17,7 +17,7 @@ TOPICS: dict[str, tuple[str, str, str]] = {
     # --- Cybersecurity ---
     "ransomware": ("cyber", "Ransomware", r"ransomware|extortion gang|double extortion|encrypt(?:ed|s) files|ransom (?:note|demand)"),
     "breach": ("cyber", "Data breach / leak", r"data breach|breach(?:ed|es)?\b|data leak|leaked (?:data|database|records)|exposed (?:data|database|records)|stolen data|hack(?:ed)? (?:into|of)|compromised (?:accounts|data|systems)"),
-    "vulnerability": ("cyber", "Vulnerability", r"vulnerabilit(?:y|ies)|\bflaws?\b|\bCVE-\d{4}-\d+|security (?:bug|hole|update|patch)|\bpatch(?:es|ed)?\b|\bRCE\b|remote code execution|privilege escalation|authentication bypass|buffer overflow|SQL injection|\bXSS\b"),
+    "vulnerability": ("cyber", "Vulnerability", r"vulnerabilit(?:y|ies)|\bflaws?\b|\bCVE-\d{4}-\d+|security (?:bug|hole|update|patch)|\bpatch(?:es|ed)?\b|\bRCE\b|remote code execution|exploit(?:s|ation|ed)?\b|proof[- ]of[- ]concept|privilege escalation|authentication bypass|buffer overflow|SQL injection|\bXSS\b"),
     "zeroday": ("cyber", "Zero-day / exploited", r"zero[- ]day|\b0[- ]day|actively exploited|exploited in the wild|in-the-wild exploit|under active (?:attack|exploitation)|mass[- ]exploitation|\bKEV\b|known exploited"),
     "malware": ("cyber", "Malware", r"malware|trojan|infostealer|\bstealer\b|botnet|backdoor|\bRAT\b|spyware|\bwiper\b|\bworm\b|rootkit|\bloader\b|keylogger|cryptominer|malicious (?:app|extension|code)"),
     "phishing": ("cyber", "Phishing / social eng.", r"phishing|smishing|vishing|social engineering|business email compromise|\bBEC\b|scam (?:email|text|call)s?|impersonat(?:e|ing|ion)|fake (?:login|site|website|app)"),
@@ -28,7 +28,7 @@ TOPICS: dict[str, tuple[str, str, str]] = {
     "fraud": ("cyber", "Crypto / fraud", r"crypto(?:currency)? (?:theft|heist|scam|exchange hack)|\bheist\b|fraud|money laundering|scam(?:mers)?\b|pig butchering|drained|wallet drainer"),
     "lawenforcement": ("cyber", "Arrests & takedowns", r"arrest(?:ed|s)?|charged|indict(?:ed|ment)|sentenced|extradit(?:ed|ion)|takedown|taken down|seiz(?:ed|ure)|dismantl(?:ed|es)|Europol|Interpol|Operation [A-Z][a-z]+|pleads? guilty|sanction(?:s|ed)"),
     "infrastructure": ("cyber", "Critical infrastructure", r"critical infrastructure|\bICS\b|\bSCADA\b|\bOT\b (?:security|network)|operational technology|power grid|water (?:utility|facility|treatment)|pipeline|hospital|healthcare (?:provider|system)|energy sector|telecom(?:s|munications)? (?:providers?|networks?|operators?|firms?|companies|giants?)"),
-    "identity": ("cyber", "Identity & access", r"credential|password|\bMFA\b|multi-factor|two-factor|\b2FA\b|passkey|authentication|\bOAuth\b|single sign-on|\bSSO\b|session token|account takeover"),
+    "identity": ("cyber", "Identity & access", r"credential|password|\bMFA\b|multi-factor|two-factor|\b2FA\b|passkey|(?<!no )authentication (?:app|token|code|system)s?|\bOAuth\b|single sign-on|\bSSO\b|session token|account takeover"),
     "privacy": ("cyber", "Privacy & regulation", r"privacy|\bGDPR\b|data protection|surveillance|\bfine[ds]?\b|regulator|compliance|\bNIS2\b|\bDORA\b|lawsuit|class action|disclosure rule"),
     # --- Artificial intelligence ---
     "llm": ("ai", "LLMs & generative AI", r"\bLLMs?\b|large language model|generative AI|\bGenAI\b|chatbot|ChatGPT|\bGPT-?\d|\bClaude\b|\bGemini\b|\bLlama\b|Mistral|DeepSeek|Copilot|foundation model|frontier model|\bQwen\b|\bGrok\b"),
@@ -38,8 +38,12 @@ TOPICS: dict[str, tuple[str, str, str]] = {
     "aibusiness": ("ai", "AI business & funding", r"raises \$|funding round|series [A-F]\b|valuation|acquir(?:es|ed|ition)|IPO|\bunicorn\b|startup|revenue|layoffs|partnership"),
     "airesearch": ("ai", "Models & research", r"open[- ](?:source|weight) model|benchmark|\bresearch(?:ers)?\b|paper|reasoning model|multimodal|fine-tun|training (?:run|data)|new model|model release|\bAGI\b"),
     "compute": ("ai", "Chips & compute", r"Nvidia|\bGPUs?\b|\bTPUs?\b|semiconductor|\bchips?\b|data ?cent(?:er|re)s?|\bAMD\b|\bTSMC\b|compute capacity|supercomputer"),
+    # --- Resilience / disaster recovery (a cross-cutting group, not a category) ---
+    "outage": ("drp", "Outages & downtime", r"outages?\b|went down|service disruption|downtime|\bdown for\b|disrupted service|went offline|knocked offline"),
+    "backup": ("drp", "Backup & data protection", r"backups?\b|immutable (?:storage|backups?)|snapshots?\b|air[- ]?gapped|data recovery|restore(?:d|s)? (?:from|data|files|systems)|data loss"),
+    "recovery": ("drp", "Disaster recovery & IR", r"disaster recovery|\bDR (?:plan|site|test)|\bRTO\b|\bRPO\b|recovery time|fail[- ]?over|recover(?:ed|ing|y)? from (?:the |an? )?(?:attack|outage|incident|breach|ransomware)|incident response|restor(?:e|ed|ing) (?:operations|services|systems)|back online|recovery efforts?"),
+    "continuity": ("drp", "Business continuity & resilience", r"business continuity|\bBCP\b|operational resilience|cyber[- ]resilien|resilien(?:ce|t)\b|\bDORA\b|crisis management|contingency plan|tabletop exercise|single point of failure|redundan(?:cy|t)"),
     # --- General IT / tech ---
-    "outage": ("tech", "Outages & incidents", r"outage|went down|service disruption|downtime|\bdown for\b|disrupted service"),
     "cloud": ("tech", "Cloud & infrastructure", r"\bcloud\b|\bAWS\b|\bAzure\b|Google Cloud|kubernetes|serverless|\bSaaS\b"),
     "platforms": ("tech", "OS & platforms", r"Windows \d+|\bWindows\b|macOS|\biOS\b|Android|Linux|Chrome(?:OS)?|Firefox|browser|smartphone|iPhone|Pixel"),
     "bigtech": ("tech", "Big Tech", r"\bApple\b|\bGoogle\b|Microsoft|\bMeta\b|Amazon|\bOpenAI\b|Anthropic|\bX Corp\b|TikTok|Samsung"),
@@ -49,10 +53,10 @@ TOPICS: dict[str, tuple[str, str, str]] = {
 # Severity signals (only meaningful for security stories). weight, regex
 SEVERITY_SIGNALS: list[tuple[int, str]] = [
     (6, r"zero[- ]day|\b0[- ]day|actively exploited|exploited in the wild|under active (?:attack|exploitation)|mass[- ]exploitation"),
-    (5, r"critical infrastructure|wiper|nation[- ]state|state[- ]sponsored|emergency (?:directive|patch|update)"),
+    (5, r"wiper|nation[- ]state|state[- ]sponsored|emergency (?:directive|patch|update)"),
     (4, r"CVSS (?:score of )?(?:9\.\d|10(?:\.0)?)|critical(?:[- ]severity)?(?:\s+[\w-]+){0,3}\s+(?:vulnerabilit|flaws?\b|bugs?\b|RCE)|maximum severity"),
     (4, r"\b\d+(?:\.\d+)? (?:million|billion)\b(?: \w+){0,3} (?:records|users|customers|people|patients|accounts)"),
-    (3, r"ransomware|cyber[- ]?attack|halts? (?:production|operations)|(?:Chinese|Russian|Iranian|North Korean) (?:state )?hackers|run (?:arbitrary |malicious )?code|as root|remote code execution|\bRCE\b|backdoor|supply[- ]chain attack|data breach|hospital|power grid|water (?:utility|facility)"),
+    (3, r"ransomware|critical infrastructure|cyber[- ]?attack|halts? (?:production|operations)|(?:Chinese|Russian|Iranian|North Korean) (?:state )?hackers|run (?:arbitrary |malicious )?code|as root|remote code execution|\bRCE\b|backdoor|supply[- ]chain attack|data breach|hospital|power grid|water (?:utility|facility)"),
     (2, r"breach|exploit|hijack|espionage|botnet|stealer|DDoS|malicious package"),
     (1, r"vulnerabilit|flaw|malware|phishing|patch|attack|hack"),
 ]
@@ -161,6 +165,8 @@ def pick_category(topics: list[str], default: str, title: str) -> str:
     title_topics = set(find_topics(title))
     for tid in topics:
         cat = TOPICS[tid][0]
+        if cat not in weights:  # cross-cutting groups such as "drp" don't pick a category
+            continue
         weights[cat] += 2.0 if tid in title_topics else 1.0
     # Generic tech topics are weak evidence; the source's own focus is strong.
     weights["tech"] *= 0.6
@@ -169,7 +175,7 @@ def pick_category(topics: list[str], default: str, title: str) -> str:
     return best
 
 
-def enrich(title: str, summary: str, default_category: str) -> dict:
+def enrich(title: str, summary: str, default_category: str, tags: tuple[str, ...] = ()) -> dict:
     text = f"{title}\n{summary}"
     topics = find_topics(text)
     cves = find_cves(text)
@@ -190,5 +196,6 @@ def enrich(title: str, summary: str, default_category: str) -> dict:
         "countries": countries,
         "cves": cves,
         "actors": actors,
+        "drp": "drp" in tags or any(TOPICS[t][0] == "drp" for t in topics),
         "crossover": category == "ai" and has_cyber or category == "cyber" and any(TOPICS[t][0] == "ai" for t in topics if t != "compute"),
     }

@@ -88,7 +88,7 @@ def process_source(src: dict, now: datetime, cutoff: datetime) -> tuple[dict, li
             published = now  # clamp feeds with bogus future dates
         if published < cutoff:
             continue
-        meta = enrich(it["title"], it["summary"], src["category"])
+        meta = enrich(it["title"], it["summary"], src["category"], tuple(src.get("tags", ())))
         articles.append({
             "id": article_id(it["url"]),
             "title": it["title"],
@@ -172,10 +172,14 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--workers", type=int, default=8)
     args = ap.parse_args(argv)
 
-    sources = [s for s in json.loads(CONFIG.read_text(encoding="utf-8"))["sources"] if s.get("enabled", True)]
+    all_sources = json.loads(CONFIG.read_text(encoding="utf-8"))["sources"]
+    sources = [s for s in all_sources if s.get("enabled", True)]
     if args.only:
         wanted = set(args.only.split(","))
         sources = [s for s in sources if s["id"] in wanted]
+        if not sources:
+            log(f"No enabled source matches --only {args.only}")
+            return 2
 
     now = datetime.now(timezone.utc)
     cutoff = now - timedelta(days=args.days)
@@ -194,6 +198,12 @@ def main(argv: list[str] | None = None) -> int:
     previous = load_json(news_path, {"articles": []})
     cutoff_iso = cutoff.isoformat(timespec="seconds").replace("+00:00", "Z")
     kept = [a for a in previous.get("articles", []) if a.get("published", "") >= cutoff_iso]
+    # Re-label stored stories so rule changes apply to the whole window, not just new items.
+    by_id = {s["id"]: s for s in all_sources}
+    for a in kept:
+        src = by_id.get(a.get("source_id"), {})
+        a.update(enrich(a["title"], a.get("summary", ""), src.get("category", a.get("category", "tech")),
+                        tuple(src.get("tags", ()))))
     # Fresh copies win so classification improvements apply to recent stories.
     merged = {a["id"]: a for a in kept}
     merged.update({a["id"]: a for a in fetched})

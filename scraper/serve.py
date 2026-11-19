@@ -9,6 +9,9 @@ Environment variables (all optional):
     REFRESH_HOURS   hours between feed refreshes (default 3, 0 = never)
     WINDOW_DAYS     days of stories to keep (default 30)
     FETCH_ON_START  "0" to skip the fetch at startup (default "1")
+    WEEKLY_IDEAS    "0" to turn off the weekly blog ideas (default "1")
+    SMTP_HOST, SMTP_PORT, SMTP_USERNAME, SMTP_PASSWORD, EMAIL_TO, EMAIL_FROM,
+    DASHBOARD_URL   optional: email the weekly ideas (see weekly_ideas.py)
 """
 from __future__ import annotations
 
@@ -24,6 +27,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 import fetch_news  # noqa: E402
+import weekly_ideas  # noqa: E402
 
 DOCS = fetch_news.ROOT / "docs"
 
@@ -74,6 +78,12 @@ def refresh_loop(stop: threading.Event, hours: float, days: int, run_now: bool) 
                 fetch_news.main(["--days", str(days)])
             except Exception as exc:  # keep serving even if a refresh crashes
                 fetch_news.log(f"Refresh failed: {exc!r}")
+            if os.environ.get("WEEKLY_IDEAS", "1") != "0":
+                try:
+                    # Generates once per ISO week (kept stable after that) and emails once if SMTP is set.
+                    weekly_ideas.run(email=bool(os.environ.get("SMTP_HOST")))
+                except Exception as exc:
+                    fetch_news.log(f"Weekly ideas failed: {exc!r}")
         first = False
         if hours <= 0:
             return

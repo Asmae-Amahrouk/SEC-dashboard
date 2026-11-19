@@ -20,6 +20,10 @@
         <p class="sub">Cybersecurity · AI · Tech: what's happening today</p>
       </div>
     </div>
+    <nav class="pages" aria-label="Pages">
+      <a href="./" class="active" aria-current="page">Dashboard</a>
+      <a href="ideas.html">Blog ideas</a>
+    </nav>
     <div class="topbar-right">
       <span id="updated" class="muted">Loading…</span>
       <button id="theme-toggle" class="icon-btn" type="button" aria-label="Toggle dark mode" title="Toggle dark mode">
@@ -39,6 +43,7 @@
       <button type="button" data-cat="cyber"><i class="dot cyber"></i>Cyber</button>
       <button type="button" data-cat="ai"><i class="dot ai"></i>AI</button>
       <button type="button" data-cat="tech"><i class="dot tech"></i>IT / Tech</button>
+      <button type="button" data-cat="drp" title="Resilience, disaster recovery and business continuity stories from any category"><i class="dot drp"></i>DRP</button>
     </div>
     <label class="select">
       <span class="visually-hidden">Minimum severity</span>
@@ -103,7 +108,7 @@
       </div>
     </section>
 
-    <section class="grid three">
+    <section class="grid four">
       <div class="card">
         <div class="card-head"><h2>Threat landscape</h2></div>
         <ol id="threats" class="barlist"></ol>
@@ -111,6 +116,10 @@
       <div class="card">
         <div class="card-head"><h2>AI radar</h2></div>
         <ol id="ai-topics" class="barlist"></ol>
+      </div>
+      <div class="card">
+        <div class="card-head"><div><h2>Resilience &amp; DRP</h2><p class="muted small">Outages, backup, recovery, continuity</p></div></div>
+        <ol id="drp-topics" class="barlist"></ol>
       </div>
       <div class="card">
         <div class="card-head"><h2>Trending terms</h2></div>
@@ -147,6 +156,20 @@
   <footer class="footer muted small">
     Headlines and links belong to their publishers. Categories, severity and locations are assigned by keyword rules and can be wrong. Always read the original article.
   </footer>
+
+  <div id="drawer-backdrop" class="drawer-backdrop" hidden></div>
+  <aside id="drawer" class="drawer" aria-labelledby="drawer-title" aria-hidden="true" tabindex="-1">
+    <div class="drawer-head">
+      <div>
+        <p class="muted small" id="drawer-kicker">Selection</p>
+        <h2 id="drawer-title">Stories</h2>
+      </div>
+      <button id="drawer-close" class="icon-btn" type="button" aria-label="Close panel">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+      </button>
+    </div>
+    <div id="drawer-body" class="drawer-body"></div>
+  </aside>
 
   <div id="tooltip" class="tooltip" role="tooltip" hidden></div>
 

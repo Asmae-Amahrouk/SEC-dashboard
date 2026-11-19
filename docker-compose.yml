@@ -1,0 +1,17 @@
+services:
+  sec-pulse:
+    build: .
+    image: sec-pulse:latest
+    container_name: sec-pulse
+    ports:
+      - "8080:8080"
+    environment:
+      REFRESH_HOURS: "3"     # how often to re-fetch the feeds
+      WINDOW_DAYS: "30"      # how many days of stories to keep
+      TZ: "UTC"
+    volumes:
+      - news-data:/app/docs/data   # keeps collected news across restarts
+    restart: unless-stopped
+
+volumes:
+  news-data:

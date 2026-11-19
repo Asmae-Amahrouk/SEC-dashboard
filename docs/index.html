@@ -1,0 +1,158 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>SEC Pulse</title>
+  <meta name="description" content="Daily dashboard of cybersecurity, AI and tech news from major sources, with statistics and a world map.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath d='M16 2 4 7v8c0 7.5 5.1 13.4 12 15 6.9-1.6 12-7.5 12-15V7z' fill='%232a78d6'/%3E%3Cpath d='M10 17h3l2-5 3 9 2-4h2' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="css/style.css">
+  <script>
+    try { const t = localStorage.getItem("sec-theme"); if (t) document.documentElement.dataset.theme = t; } catch (e) {}
+  </script>
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <svg viewBox="0 0 32 32" aria-hidden="true"><path d="M16 2 4 7v8c0 7.5 5.1 13.4 12 15 6.9-1.6 12-7.5 12-15V7z" fill="var(--series-cyber)"/><path d="M10 17h3l2-5 3 9 2-4h2" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <div>
+        <h1>SEC Pulse</h1>
+        <p class="sub">Cybersecurity · AI · Tech: what's happening today</p>
+      </div>
+    </div>
+    <div class="topbar-right">
+      <span id="updated" class="muted">Loading…</span>
+      <button id="theme-toggle" class="icon-btn" type="button" aria-label="Toggle dark mode" title="Toggle dark mode">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3a9 9 0 1 0 9 9 7 7 0 0 1-9-9z" fill="currentColor"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <nav class="filters" aria-label="Filters">
+    <div class="seg" role="group" aria-label="Time range" id="range">
+      <button type="button" data-range="1" class="active">24h</button>
+      <button type="button" data-range="7">7 days</button>
+      <button type="button" data-range="30">30 days</button>
+    </div>
+    <div class="seg" role="group" aria-label="Category" id="category">
+      <button type="button" data-cat="all" class="active">All</button>
+      <button type="button" data-cat="cyber"><i class="dot cyber"></i>Cyber</button>
+      <button type="button" data-cat="ai"><i class="dot ai"></i>AI</button>
+      <button type="button" data-cat="tech"><i class="dot tech"></i>IT / Tech</button>
+    </div>
+    <label class="select">
+      <span class="visually-hidden">Minimum severity</span>
+      <select id="severity">
+        <option value="">Any severity</option>
+        <option value="critical">Critical only</option>
+        <option value="high">High and above</option>
+        <option value="medium">Medium and above</option>
+      </select>
+    </label>
+    <div id="active-filters" class="chips"></div>
+    <label class="search">
+      <span class="visually-hidden">Search headlines</span>
+      <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7" fill="none" stroke="currentColor" stroke-width="2"/><path d="m20 20-3.5-3.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+      <input id="search" type="search" placeholder="Search headlines, CVEs, actors…" autocomplete="off">
+    </label>
+  </nav>
+
+  <main id="app">
+    <section id="briefing" class="briefing card" aria-live="polite"></section>
+
+    <section class="kpis" id="kpis" aria-label="Key figures"></section>
+
+    <section class="grid two-one">
+      <div class="card map-card">
+        <div class="card-head">
+          <div>
+            <h2>World view</h2>
+            <p class="muted small" id="map-caption">Countries mentioned in stories. Click a country to filter.</p>
+          </div>
+          <div class="seg small" role="group" aria-label="Map metric" id="map-metric">
+            <button type="button" data-metric="mentions" class="active">Mentions</button>
+            <button type="button" data-metric="heat">Threat heat</button>
+          </div>
+        </div>
+        <div id="map" class="map" role="img" aria-label="World map of story mentions"></div>
+        <div id="map-legend" class="map-legend"></div>
+      </div>
+      <div class="card">
+        <div class="card-head"><h2>Hotspots</h2></div>
+        <ol id="countries" class="barlist"></ol>
+      </div>
+    </section>
+
+    <section class="grid two-one">
+      <div class="card">
+        <div class="card-head">
+          <div>
+            <h2>Story volume</h2>
+            <p class="muted small" id="timeline-caption"></p>
+          </div>
+          <div class="legend" id="timeline-legend"></div>
+        </div>
+        <div class="chart-box"><canvas id="timeline" aria-label="Stories over time by category"></canvas></div>
+      </div>
+      <div class="card">
+        <div class="card-head"><h2>Security severity</h2></div>
+        <div id="severity-bar" class="stackbar"></div>
+        <ul id="severity-legend" class="sev-legend"></ul>
+        <h3 class="mini-title">Sources</h3>
+        <ol id="sources-top" class="barlist compact"></ol>
+      </div>
+    </section>
+
+    <section class="grid three">
+      <div class="card">
+        <div class="card-head"><h2>Threat landscape</h2></div>
+        <ol id="threats" class="barlist"></ol>
+      </div>
+      <div class="card">
+        <div class="card-head"><h2>AI radar</h2></div>
+        <ol id="ai-topics" class="barlist"></ol>
+      </div>
+      <div class="card">
+        <div class="card-head"><h2>Trending terms</h2></div>
+        <div id="trending" class="cloud"></div>
+        <h3 class="mini-title">Threat actors</h3>
+        <div id="actors" class="cloud"></div>
+        <h3 class="mini-title">Most-cited CVEs</h3>
+        <div id="cves" class="cloud"></div>
+      </div>
+    </section>
+
+    <section class="grid one-two">
+      <div class="card">
+        <div class="card-head"><h2>Must-read</h2><span class="muted small">Highest severity first</span></div>
+        <ol id="top-stories" class="stories compact"></ol>
+      </div>
+      <div class="card">
+        <div class="card-head">
+          <h2>Latest stories <span id="feed-count" class="muted small"></span></h2>
+        </div>
+        <ol id="feed" class="stories"></ol>
+        <button id="more" type="button" class="more" hidden>Show more</button>
+      </div>
+    </section>
+
+    <section class="card">
+      <details>
+        <summary><h2>Source health</h2><span class="muted small" id="source-summary"></span></summary>
+        <div class="table-wrap"><table id="sources-table"><thead><tr><th>Source</th><th>Focus</th><th>Status</th><th class="num">Stories (window)</th></tr></thead><tbody></tbody></table></div>
+      </details>
+    </section>
+  </main>
+
+  <footer class="footer muted small">
+    Headlines and links belong to their publishers. Categories, severity and locations are assigned by keyword rules and can be wrong. Always read the original article.
+  </footer>
+
+  <div id="tooltip" class="tooltip" role="tooltip" hidden></div>
+
+  <script src="vendor/d3.min.js"></script>
+  <script src="vendor/topojson-client.min.js"></script>
+  <script src="vendor/chart.umd.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

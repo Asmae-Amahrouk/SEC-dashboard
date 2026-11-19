@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:dc="http://purl.org/dc/elements/1.1/">
+<channel>
+  <title>Example Security Feed</title>
+  <item>
+    <title>Hackers exploit Fortinet zero-day CVE-2026-12345 in attacks on U.S. hospitals</title>
+    <link>https://example.com/news/fortinet-zero-day?utm_source=rss&amp;id=7</link>
+    <pubDate>Tue, 17 Nov 2026 14:05:00 +0000</pubDate>
+    <description><![CDATA[<p>A critical flaw is <b>actively exploited</b> by Chinese state-sponsored hackers tracked as Volt Typhoon.</p>]]></description>
+  </item>
+  <item>
+    <title>OpenAI releases new reasoning model for agentic coding</title>
+    <link>https://example.com/news/openai-model</link>
+    <pubDate>Mon, 16 Nov 2026 09:00:00 GMT</pubDate>
+    <description>The company says the model tops coding benchmarks.</description>
+  </item>
+  <item>
+    <title></title>
+    <link>https://example.com/no-title</link>
+  </item>
+</channel>
+</rss>

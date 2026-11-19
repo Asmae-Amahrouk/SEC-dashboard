@@ -1,0 +1,31 @@
+{
+  "_comment": "News sources. category is the default bucket (cyber | ai | tech); each article is re-classified by its content. Set enabled to false to pause a feed.",
+  "sources": [
+    { "id": "bleepingcomputer", "name": "BleepingComputer", "category": "cyber", "url": "https://www.bleepingcomputer.com/feed/", "site": "https://www.bleepingcomputer.com" },
+    { "id": "thehackernews", "name": "The Hacker News", "category": "cyber", "url": "https://feeds.feedburner.com/TheHackersNews", "site": "https://thehackernews.com" },
+    { "id": "krebs", "name": "Krebs on Security", "category": "cyber", "url": "https://krebsonsecurity.com/feed/", "site": "https://krebsonsecurity.com" },
+    { "id": "darkreading", "name": "Dark Reading", "category": "cyber", "url": "https://www.darkreading.com/rss.xml", "site": "https://www.darkreading.com" },
+    { "id": "securityweek", "name": "SecurityWeek", "category": "cyber", "url": "https://www.securityweek.com/feed/", "site": "https://www.securityweek.com" },
+    { "id": "therecord", "name": "The Record", "category": "cyber", "url": "https://therecord.media/feed", "site": "https://therecord.media" },
+    { "id": "helpnetsecurity", "name": "Help Net Security", "category": "cyber", "url": "https://www.helpnetsecurity.com/feed/", "site": "https://www.helpnetsecurity.com" },
+    { "id": "infosecmag", "name": "Infosecurity Magazine", "category": "cyber", "url": "https://www.infosecurity-magazine.com/rss/news/", "site": "https://www.infosecurity-magazine.com" },
+    { "id": "cisa", "name": "CISA Advisories", "category": "cyber", "url": "https://www.cisa.gov/cybersecurity-advisories/all.xml", "site": "https://www.cisa.gov" },
+    { "id": "sans-isc", "name": "SANS ISC", "category": "cyber", "url": "https://isc.sans.edu/rssfeed_full.xml", "site": "https://isc.sans.edu" },
+    { "id": "schneier", "name": "Schneier on Security", "category": "cyber", "url": "https://www.schneier.com/feed/atom/", "site": "https://www.schneier.com" },
+    { "id": "register-security", "name": "The Register – Security", "category": "cyber", "url": "https://www.theregister.com/security/headlines.atom", "site": "https://www.theregister.com/security/" },
+    { "id": "wired-security", "name": "WIRED Security", "category": "cyber", "url": "https://www.wired.com/feed/category/security/latest/rss", "site": "https://www.wired.com/category/security/" },
+
+    { "id": "mit-ai", "name": "MIT Technology Review – AI", "category": "ai", "url": "https://www.technologyreview.com/topic/artificial-intelligence/feed", "site": "https://www.technologyreview.com" },
+    { "id": "verge-ai", "name": "The Verge – AI", "category": "ai", "url": "https://www.theverge.com/rss/ai-artificial-intelligence/index.xml", "site": "https://www.theverge.com/ai-artificial-intelligence" },
+    { "id": "techcrunch-ai", "name": "TechCrunch – AI", "category": "ai", "url": "https://techcrunch.com/category/artificial-intelligence/feed/", "site": "https://techcrunch.com/category/artificial-intelligence/" },
+    { "id": "venturebeat-ai", "name": "VentureBeat – AI", "category": "ai", "url": "https://venturebeat.com/category/ai/feed/", "site": "https://venturebeat.com/category/ai/" },
+    { "id": "ai-news", "name": "AI News", "category": "ai", "url": "https://www.artificialintelligence-news.com/feed/", "site": "https://www.artificialintelligence-news.com" },
+    { "id": "huggingface", "name": "Hugging Face Blog", "category": "ai", "url": "https://huggingface.co/blog/feed.xml", "site": "https://huggingface.co/blog" },
+    { "id": "google-ai", "name": "Google AI Blog", "category": "ai", "url": "https://blog.google/technology/ai/rss/", "site": "https://blog.google/technology/ai/" },
+
+    { "id": "arstechnica", "name": "Ars Technica", "category": "tech", "url": "https://feeds.arstechnica.com/arstechnica/index", "site": "https://arstechnica.com" },
+    { "id": "theregister", "name": "The Register", "category": "tech", "url": "https://www.theregister.com/headlines.atom", "site": "https://www.theregister.com" },
+    { "id": "techcrunch", "name": "TechCrunch", "category": "tech", "url": "https://techcrunch.com/feed/", "site": "https://techcrunch.com" },
+    { "id": "verge", "name": "The Verge", "category": "tech", "url": "https://www.theverge.com/rss/index.xml", "site": "https://www.theverge.com" }
+  ]
+}

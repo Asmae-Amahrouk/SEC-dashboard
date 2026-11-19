@@ -1,0 +1,3 @@
+# The scraper runs on the Python standard library alone.
+# defusedxml is optional but recommended: it hardens XML parsing of untrusted feeds.
+defusedxml==0.7.1

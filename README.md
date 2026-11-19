@@ -24,11 +24,13 @@ config/sources.json      list of RSS/Atom feeds (add/remove sources here)
 scraper/fetch_news.py    fetches feeds in parallel, dedupes, writes docs/data/*.json
 scraper/classify.py      keyword rules: category, topics, severity, CVEs, actors
 scraper/countries.py     country gazetteer + threat-actor attribution
+scraper/serve.py         Docker entrypoint: web server + refresh timer
+Dockerfile, docker-compose.yml
 docs/                    the static dashboard (GitHub Pages serves this folder)
 .github/workflows/       GitHub Action that refreshes the data every 3 hours
 ```
 
-The scraper uses only the Python standard library (plus optional `defusedxml` for safer XML parsing). It keeps a rolling **30-day** window in `docs/data/news.json` and a year of daily aggregates in `docs/data/history.json`. Nothing needs a server or an API key.
+The scraper uses only the Python standard library (plus optional `defusedxml` for safer XML parsing). It keeps a rolling **30-day** window in `docs/data/news.json` and a year of daily aggregates in `docs/data/history.json`. No API keys needed. Host it free on GitHub Pages, or run it yourself with Docker.
 
 **How stories get labeled.** Every label comes from transparent keyword rules, not AI:
 - *Category*: a story's topics outweigh its source. A ransomware story on TechCrunch counts as Cyber; a ChatGPT story on a tech site counts as AI.
@@ -44,6 +46,43 @@ Expect some mislabels. Tune the rules in `scraper/classify.py` and `scraper/coun
 3. **Allow the Action to commit**: *Settings → Actions → General → Workflow permissions → Read and write*.
 4. **Run it once by hand**: *Actions → Update news → Run workflow*. It refreshes every 3 hours after that.
 5. Open `https://<your-username>.github.io/<repo>/` and bookmark it.
+
+## Run with Docker
+
+The image holds both the dashboard and the news collector. It fetches the feeds when it starts and again every 3 hours, and keeps the collected news in a volume.
+
+```bash
+docker compose up -d --build        # then open http://localhost:8080
+docker compose logs -f              # watch the feed refreshes
+docker compose down                 # stop (news is kept in the "news-data" volume)
+```
+
+Without Compose:
+
+```bash
+docker build -t sec-pulse .
+docker run -d --name sec-pulse -p 8080:8080 -v sec-pulse-data:/app/docs/data --restart unless-stopped sec-pulse
+```
+
+Settings (environment variables):
+
+| Variable | Default | Meaning |
+|---|---|---|
+| `PORT` | `8080` | HTTP port inside the container |
+| `REFRESH_HOURS` | `3` | Hours between feed refreshes (`0` = only at startup) |
+| `WINDOW_DAYS` | `30` | Days of stories to keep |
+| `FETCH_ON_START` | `1` | Set to `0` to skip the fetch at startup |
+| `ACCESS_LOG` | `0` | Set to `1` to log every HTTP request |
+
+The container runs as a non-root user and exposes `/healthz` for health checks. It turns off directory listings and sends security headers, including a strict Content-Security-Policy. To use your own feed list, mount it: `-v ./config/sources.json:/app/config/sources.json:ro`.
+
+A prebuilt image is published to GitHub Container Registry on every push to `main` (`.github/workflows/docker.yml`):
+
+```bash
+docker run -d -p 8080:8080 -v sec-pulse-data:/app/docs/data ghcr.io/<your-username>/sec-dashboard:latest
+```
+
+For access from other machines, put it behind a reverse proxy with HTTPS (Caddy, Traefik, nginx). The built-in server is fine for home or LAN use, but it is not built to face the internet directly.
 
 ## Run locally
 

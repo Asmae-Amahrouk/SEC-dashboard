@@ -88,3 +88,17 @@ def test_no_history_means_no_percentages():
     week = weekly_ideas.build_week(news)
     assert week["summary"]["history_ok"] is False
     assert all("%" not in i["why_now"] or "of all news" in i["why_now"] for i in week["ideas"])
+
+
+def test_markdown_digest_is_safe_for_github_issues():
+    news = sample_news()
+    news["articles"][0]["title"] = "Ping @someone about #42 [click](javascript:alert(1))"
+    week = weekly_ideas.build_week(news)
+    md = weekly_ideas.email_markdown(week, "https://example.github.io/SEC-dashboard/", mention="owner")
+    assert md.startswith("Hi @owner")
+    assert "@someone" not in md and "#42" not in md
+    assert "](javascript:" not in md
+    for heading in ("## 1 · This week in one minute", "## 2 · Your blog ideas at a glance", "## 3 · The ideas in detail",
+                    "## 4 · Top stories of the week"):
+        assert heading in md
+    assert weekly_ideas.issue_title(week).startswith("📬 Weekly blog ideas")

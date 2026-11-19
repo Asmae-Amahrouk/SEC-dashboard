@@ -53,25 +53,34 @@ Every Monday, `scraper/weekly_ideas.py` looks at the last 7 days of news. It fin
 
 It's all rule-based: no AI and no API keys. The idea templates live in `TEMPLATES` and `COMBOS` in `scraper/weekly_ideas.py`, so edit them to match your voice. Past weeks (up to 12) stay available in the week picker.
 
-### Set up the weekly email (GitHub)
+### Get the ideas by email
 
-The **Weekly blog ideas** workflow runs on Mondays at 06:41 UTC. It refreshes the news, builds the ideas, commits them to `docs/data/ideas.json` and emails you, once per week. The email has four clearly numbered sections: *This week in one minute*, *Your blog ideas at a glance*, *The ideas in detail* and *Top stories of the week*.
+The **Weekly blog ideas** workflow runs on Mondays at 06:41 UTC. It refreshes the news, builds the ideas and commits them to `docs/data/ideas.json`. Then it delivers them once per week, in four clearly numbered sections: *This week in one minute*, *Your blog ideas at a glance*, *The ideas in detail* and *Top stories of the week*. There are two ways to receive them:
 
-1. **Create an app password** (Gmail example): turn on 2-Step Verification for your Google account, then go to <https://myaccount.google.com/apppasswords>, create one called "SEC Pulse" and copy the 16-character password. Never use your normal password.
-2. In the repo: **Settings → Secrets and variables → Actions → New repository secret**. Add these one by one:
+**Option A: GitHub notification email (default, no passwords).**
+If no SMTP secrets are set, the workflow posts the digest as a GitHub issue labeled `weekly-ideas` that @mentions you. GitHub then emails it to the address on your GitHub account. Last week's issue is closed automatically.
+- Check that GitHub emails you about mentions: <https://github.com/settings/notifications> → *Participating, @mentions and custom* → **Email** ticked.
+- Test it: **Actions → Weekly blog ideas → Run workflow**.
 
-   | Secret | Value (Gmail) |
+**Option B: a formatted email through an email service (SMTP).**
+Gmail only allows this with an *app password*, which some accounts can't create. A free email-sending service works instead, for example [Brevo](https://www.brevo.com) (free plan: 300 emails per day):
+1. Create a free Brevo account with your email address and confirm it.
+2. In Brevo, open **SMTP & API → SMTP** and click **Generate a new SMTP key**. Copy the *login* and the *key*.
+3. Under **Senders**, make sure your own address is a verified sender.
+4. In the repo: **Settings → Secrets and variables → Actions → New repository secret**. Add:
+
+   | Secret | Value |
    |---|---|
-   | `SMTP_HOST` | `smtp.gmail.com` |
+   | `SMTP_HOST` | `smtp-relay.brevo.com` (Gmail with an app password: `smtp.gmail.com`) |
    | `SMTP_PORT` | `587` |
-   | `SMTP_USERNAME` | your Gmail address |
-   | `SMTP_PASSWORD` | the app password from step 1 |
+   | `SMTP_USERNAME` | the SMTP *login* Brevo shows (Gmail: your address) |
+   | `SMTP_PASSWORD` | the SMTP *key* (Gmail: the app password) |
    | `EMAIL_TO` | where to send it (comma-separate several addresses) |
-   | `EMAIL_FROM` | optional, defaults to `SMTP_USERNAME` |
+   | `EMAIL_FROM` | your verified sender address |
 
-3. Test it: **Actions → Weekly blog ideas → Run workflow**. Tick **resend** to force a new email in the same week.
+5. Run the workflow once to test it. Tick **resend** to send again in the same week.
 
-Your email address and password stay in GitHub's encrypted secrets. They are never written into the code, so they stay private even though the repo is public.
+As soon as `SMTP_HOST` is set, the workflow uses Option B instead of the GitHub issue. Secrets are encrypted by GitHub and never written into the code, so they stay private even though the repo is public.
 
 **Docker:** copy `.env.example` to `.env`, fill in the same values, and run `docker compose up -d`. The container builds the ideas once per week (on the first refresh of each ISO week) and emails them if `SMTP_HOST` is set. Set `WEEKLY_IDEAS=0` to turn it off.
 

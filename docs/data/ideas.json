@@ -1,1 +1,370 @@
-{"weeks":[]}
+{
+ "weeks": [
+  {
+   "week_id": "2026-W48",
+   "label": "16 Nov – 23 Nov 2026",
+   "period": {
+    "from": "2026-11-16T18:42:00+00:00",
+    "to": "2026-11-23T18:42:00+00:00"
+   },
+   "generated_at": "2026-11-23T18:42:06+00:00",
+   "summary": {
+    "stories": 679,
+    "by_area": {
+     "cyber": 320,
+     "ai": 150,
+     "tech": 209,
+     "drp": 44
+    },
+    "critical_high": 82,
+    "rising": [
+     {
+      "theme": "AI business & funding",
+      "this_week": 32,
+      "trend": "Rising fast"
+     },
+     {
+      "theme": "Outages & downtime",
+      "this_week": 25,
+      "trend": "Rising"
+     },
+     {
+      "theme": "AI agents",
+      "this_week": 54,
+      "trend": "Rising"
+     }
+    ],
+    "history_ok": true,
+    "top_stories": [
+     {
+      "title": "Critical Apache Roller RCE Flaw Under Active Exploitation, No Authentication Required",
+      "url": "https://thehackernews.com/2026/11/critical-apache-roller-rce-flaw-under.html",
+      "source": "The Hacker News",
+      "severity": "critical"
+     },
+     {
+      "title": "CISA flags critical Cisco RCE flaw as actively exploited in attacks",
+      "url": "https://www.bleepingcomputer.com/news/security/cisa-flags-critical-cisco-expressway-rce-flaw-as-actively-exploited/",
+      "source": "BleepingComputer",
+      "severity": "critical"
+     },
+     {
+      "title": "F5 releases emergency patches for critical BIG-IP RCE flaws",
+      "url": "https://www.bleepingcomputer.com/news/security/f5-releases-emergency-patches-for-critical-big-ip-rce-flaws/",
+      "source": "BleepingComputer",
+      "severity": "critical"
+     },
+     {
+      "title": "Hackers Exploit Critical ASP.NET Anti-CSRF Library Flaw Allowing Unauthenticated RCE",
+      "url": "https://thehackernews.com/2026/11/hackers-exploit-critical-aspnet-anti.html",
+      "source": "The Hacker News",
+      "severity": "critical"
+     },
+     {
+      "title": "China-Linked Hackers Exploit Critical VMware vCenter Zero-Day to Gain Admin Access and Steal Data",
+      "url": "https://thehackernews.com/2026/11/china-linked-hackers-exploit-critical.html",
+      "source": "The Hacker News",
+      "severity": "critical"
+     }
+    ]
+   },
+   "ideas": [
+    {
+     "number": 1,
+     "area": "drp",
+     "area_label": "DRP & resilience",
+     "title": "Cloud concentration risk: what happens when your provider has a bad week",
+     "theme": "Cloud & infrastructure",
+     "trend": {
+      "this_week": 37,
+      "share_pct": 5.4,
+      "share_before_pct": 4.6,
+      "change_pct": 19,
+      "label": "Steady"
+     },
+     "why_now": "37 stories this week on cloud & infrastructure: 5.4% of all news, compared with 4.6% over the 3 weeks before (steady). Biggest story: \"Norway links energy firm cyberattacks to critical Azure API Management flaw\" (The Register).",
+     "angle": "Use this week's cloud news to discuss shared-responsibility gaps, multi-region design and what 'exit strategy' really means.",
+     "outline": [
+      "What happened this week",
+      "Shared responsibility: what the provider will not recover for you",
+      "Multi-region vs. multi-cloud: costs and benefits",
+      "A practical cloud resilience checklist"
+     ],
+     "audience": "Cloud architects, IT managers",
+     "sources": [
+      {
+       "title": "Norway links energy firm cyberattacks to critical Azure API Management flaw",
+       "url": "https://www.theregister.com/security/2026/11/23/norway-links-energy-firm-cyberattacks-to-critical-azure-api-management-flaw/5311598",
+       "source": "The Register",
+       "published": "2026-11-23T12:29:00Z"
+      },
+      {
+       "title": "Hackers exploit GL.iNet cloud flaw to infect routers, KVM devices",
+       "url": "https://www.bleepingcomputer.com/news/security/hackers-exploit-glinet-cloud-flaw-to-infect-routers-kvm-devices/",
+       "source": "BleepingComputer",
+       "published": "2026-11-22T18:45:37Z"
+      },
+      {
+       "title": "Russia's Cold Relic APT Turns One Cloud Breach Into Another",
+       "url": "https://www.darkreading.com/cyberattacks-data-breaches/cold-relic-turns-one-cloud-breach-into-another",
+       "source": "Dark Reading",
+       "published": "2026-11-18T21:59:46Z"
+      },
+      {
+       "title": "Azure Flaw Exploited to Target Secrets at Norwegian Energy Firms",
+       "url": "https://www.securityweek.com/azure-flaw-exploited-to-target-secrets-at-norwegian-energy-firms/",
+       "source": "SecurityWeek",
+       "published": "2026-11-23T15:47:40Z"
+      }
+     ]
+    },
+    {
+     "number": 2,
+     "area": "drp",
+     "area_label": "DRP & resilience",
+     "title": "Outages made 25 headlines this week: lessons in single points of failure",
+     "theme": "Outages & downtime",
+     "trend": {
+      "this_week": 25,
+      "share_pct": 3.7,
+      "share_before_pct": 2.1,
+      "change_pct": 74,
+      "label": "Rising"
+     },
+     "why_now": "25 stories this week on outages & downtime: 3.7% of all news, compared with 2.1% over the 3 weeks before (rising). Biggest story: \"European Commission Confirms AI-Assisted Cyberattack Disrupted Services\" (SecurityWeek).",
+     "angle": "Use this week's outages as a case study: what failed, how long recovery took, how the provider communicated, and what customers with a plan B did differently.",
+     "outline": [
+      "Timeline of the biggest outage",
+      "Root cause vs. impact: why one fault spread so far",
+      "Questions to ask your own providers",
+      "Designing for failure: redundancy, failover, manual workarounds"
+     ],
+     "audience": "IT operations, DR planners, business leaders",
+     "sources": [
+      {
+       "title": "European Commission Confirms AI-Assisted Cyberattack Disrupted Services",
+       "url": "https://www.securityweek.com/european-commission-confirms-ai-assisted-cyberattack-disrupted-services/",
+       "source": "SecurityWeek",
+       "published": "2026-11-20T10:51:42Z"
+      },
+      {
+       "title": "JPMorgan Chase reveals data breach, but says it’s unrelated to this week’s banking outage",
+       "url": "https://www.theverge.com/tech/1037695/jpmorgan-chase-cyberattack",
+       "source": "The Verge",
+       "published": "2026-11-19T16:47:05Z"
+      },
+      {
+       "title": "N-able Blames Service Disruption on Cyberattack",
+       "url": "https://www.securityweek.com/n-able-blames-service-disruption-on-cyberattack/",
+       "source": "SecurityWeek",
+       "published": "2026-11-20T09:08:35Z"
+      },
+      {
+       "title": "How to tell a cyberattack from a plain old outage",
+       "url": "https://arstechnica.com/security/2026/11/how-to-tell-a-cyberattack-from-a-plain-old-outage/",
+       "source": "Ars Technica",
+       "published": "2026-11-19T11:13:01Z"
+      }
+     ]
+    },
+    {
+     "number": 3,
+     "area": "cyber",
+     "area_label": "Cybersecurity",
+     "title": "133 vulnerability stories in one week: how to decide what to patch first",
+     "theme": "Vulnerability",
+     "trend": {
+      "this_week": 133,
+      "share_pct": 19.6,
+      "share_before_pct": 17.3,
+      "change_pct": 13,
+      "label": "Steady"
+     },
+     "why_now": "133 stories this week on vulnerability: 19.6% of all news, compared with 17.3% over the 3 weeks before (steady). Biggest story: \"Critical Apache Roller RCE Flaw Under Active Exploitation, No Authentication Required\" (The Hacker News).",
+     "angle": "Help readers decide what to patch first using exploitation status (CISA KEV), exposure and business impact rather than CVSS alone.",
+     "outline": [
+      "This week's most important vulnerabilities",
+      "Why CVSS alone misleads",
+      "A simple prioritisation matrix",
+      "Emergency change process without breaking production"
+     ],
+     "audience": "Security and IT teams",
+     "sources": [
+      {
+       "title": "Critical Apache Roller RCE Flaw Under Active Exploitation, No Authentication Required",
+       "url": "https://thehackernews.com/2026/11/critical-apache-roller-rce-flaw-under.html",
+       "source": "The Hacker News",
+       "published": "2026-11-18T17:10:45Z"
+      },
+      {
+       "title": "CISA flags critical Cisco RCE flaw as actively exploited in attacks",
+       "url": "https://www.bleepingcomputer.com/news/security/cisa-flags-critical-cisco-expressway-rce-flaw-as-actively-exploited/",
+       "source": "BleepingComputer",
+       "published": "2026-11-23T07:44:19Z"
+      },
+      {
+       "title": "F5 releases emergency patches for critical BIG-IP RCE flaws",
+       "url": "https://www.bleepingcomputer.com/news/security/f5-releases-emergency-patches-for-critical-big-ip-rce-flaws/",
+       "source": "BleepingComputer",
+       "published": "2026-11-20T10:57:43Z"
+      },
+      {
+       "title": "Hackers Exploit Critical ASP.NET Anti-CSRF Library Flaw Allowing Unauthenticated RCE",
+       "url": "https://thehackernews.com/2026/11/hackers-exploit-critical-aspnet-anti.html",
+       "source": "The Hacker News",
+       "published": "2026-11-23T09:11:56Z"
+      }
+     ]
+    },
+    {
+     "number": 4,
+     "area": "cyber",
+     "area_label": "Cybersecurity",
+     "title": "45 breach stories in 7 days: the patterns behind the headlines",
+     "theme": "Data breach / leak",
+     "trend": {
+      "this_week": 45,
+      "share_pct": 6.6,
+      "share_before_pct": 5.7,
+      "change_pct": 17,
+      "label": "Steady"
+     },
+     "why_now": "45 stories this week on data breach / leak: 6.6% of all news, compared with 5.7% over the 3 weeks before (steady). Biggest story: \"N-able Discloses Critical Mail Assure Vulnerability Found During Breach Investigation\" (The Hacker News).",
+     "angle": "Find the common root causes (stolen credentials, third parties, misconfiguration) and judge how well each company detected, contained and disclosed the breach.",
+     "outline": [
+      "The breaches of the week",
+      "Three root causes that keep repeating",
+      "Detection and disclosure: who did it well",
+      "Five controls that would have helped"
+     ],
+     "audience": "Security teams and business leaders",
+     "sources": [
+      {
+       "title": "N-able Discloses Critical Mail Assure Vulnerability Found During Breach Investigation",
+       "url": "https://thehackernews.com/2026/11/n-able-discloses-critical-mail-assure.html",
+       "source": "The Hacker News",
+       "published": "2026-11-23T12:28:09Z"
+      },
+      {
+       "title": "Hackers Exploit Critical Cisco Expressway Flaw, Breach Four Devices and Reach Internal Network",
+       "url": "https://thehackernews.com/2026/11/hackers-exploit-critical-cisco.html",
+       "source": "The Hacker News",
+       "published": "2026-11-20T10:32:50Z"
+      },
+      {
+       "title": "Rakuten Securities Breach Could Impact 15 Million Customers",
+       "url": "https://www.infosecurity-magazine.com/news/rakuten-securities-breach-15/",
+       "source": "Infosecurity Magazine",
+       "published": "2026-11-19T09:20:00Z"
+      },
+      {
+       "title": "Cisco Expressway vulnerability exploited to breach internal networks (CVE-2026-76466)",
+       "url": "https://www.helpnetsecurity.com/2026/11/23/cisco-expressway-vulnerability-exploited-cve-2026-76466/",
+       "source": "Help Net Security",
+       "published": "2026-11-23T12:26:10Z"
+      }
+     ]
+    },
+    {
+     "number": 5,
+     "area": "ai",
+     "area_label": "AI",
+     "title": "Following the money: what this week's AI deals say about security",
+     "theme": "AI business & funding",
+     "trend": {
+      "this_week": 32,
+      "share_pct": 4.7,
+      "share_before_pct": 1.4,
+      "change_pct": 233,
+      "label": "Rising fast"
+     },
+     "why_now": "32 stories this week on AI business & funding: 4.7% of all news, compared with 1.4% over the 3 weeks before (rising fast). Biggest story: \"Sierra doubles valuation to $30B within six months as demand for AI in CX takes off\" (TechCrunch).",
+     "angle": "Read the deals as signals: where investors and vendors think security and AI are heading.",
+     "outline": [
+      "The deals of the week",
+      "Patterns and trends",
+      "What it means for buyers",
+      "Predictions"
+     ],
+     "audience": "Tech and business readers",
+     "sources": [
+      {
+       "title": "Sierra doubles valuation to $30B within six months as demand for AI in CX takes off",
+       "url": "https://techcrunch.com/2026/11/23/sierra-doubles-valuation-to-30b-within-six-months-as-demand-for-ai-in-cx-takes-off/",
+       "source": "TechCrunch",
+       "published": "2026-11-23T14:43:03Z"
+      },
+      {
+       "title": "How Notable Capital, GIC, and Baillie Gifford bet big on Anthropic before its IPO",
+       "url": "https://techcrunch.com/2026/11/22/how-notable-capital-gic-and-baillie-gifford-bet-big-on-anthropic-before-its-ipo/",
+       "source": "TechCrunch",
+       "published": "2026-11-23T01:25:53Z"
+      },
+      {
+       "title": "How to build and maintain an agentic evaluation",
+       "url": "https://huggingface.co/blog/agentic-evals",
+       "source": "Hugging Face Blog",
+       "published": "2026-11-23T00:00:00Z"
+      },
+      {
+       "title": "Is selling an AI version of your face to this microdrama startup the future of Hollywood?",
+       "url": "https://techcrunch.com/2026/11/21/is-selling-an-ai-version-of-your-face-to-this-microdrama-startup-the-future-of-hollywood/",
+       "source": "TechCrunch – AI",
+       "published": "2026-11-21T16:00:00Z"
+      }
+     ]
+    },
+    {
+     "number": 6,
+     "area": "ai",
+     "area_label": "AI",
+     "title": "AI agents are getting access to everything. Who is watching them?",
+     "theme": "AI agents",
+     "trend": {
+      "this_week": 54,
+      "share_pct": 8.0,
+      "share_before_pct": 5.7,
+      "change_pct": 41,
+      "label": "Rising"
+     },
+     "why_now": "54 stories this week on AI agents: 8% of all news, compared with 5.7% over the 3 weeks before (rising). Biggest story: \"Amazon: China-Linked Hackers’ AI Agents Exploited Medical Software Zero-Day\" (SecurityWeek).",
+     "angle": "Discuss what happens when AI agents act on systems with real permissions: identity, logging, guardrails, and how to roll back when an agent makes a mistake.",
+     "outline": [
+      "What's new with AI agents this week",
+      "The access problem: agents as non-human identities",
+      "Guardrails, approvals and audit logs",
+      "Planning for agent failures and rollback"
+     ],
+     "audience": "IT, security and AI teams",
+     "sources": [
+      {
+       "title": "Amazon: China-Linked Hackers’ AI Agents Exploited Medical Software Zero-Day",
+       "url": "https://www.securityweek.com/amazon-china-linked-hackers-ai-agents-exploited-medical-software-zero-day/",
+       "source": "SecurityWeek",
+       "published": "2026-11-21T12:08:50Z"
+      },
+      {
+       "title": "China attackers deployed AI agents that autonomously found and exploited a 0-day to take over a university server",
+       "url": "https://www.theregister.com/security/2026/11/20/china-attackers-deployed-ai-agents-that-autonomously-found-and-exploited-a-0-day-to-take-over-a-university-server/5311382",
+       "source": "The Register",
+       "published": "2026-11-20T17:30:00Z"
+      },
+      {
+       "title": "Attackers' AI Agents Found a Zero-Day in Medical-Imaging Software and Gained Root Access",
+       "url": "https://thehackernews.com/2026/11/attackers-ai-agents-found-zero-day-in.html",
+       "source": "The Hacker News",
+       "published": "2026-11-21T11:03:17Z"
+      },
+      {
+       "title": "AI Agents Zip From Flaw Discovery to Root Access in 11 Minutes",
+       "url": "https://www.darkreading.com/cyberattacks-data-breaches/ai-agents-flaw-discovery-root-access-11-minutes",
+       "source": "Dark Reading",
+       "published": "2026-11-23T16:17:21Z"
+      }
+     ]
+    }
+   ],
+   "emailed_at": null
+  }
+ ]
+}
